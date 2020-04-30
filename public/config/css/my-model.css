@@ -1,0 +1,67 @@
+.portlet{
+    border-radius: 6px;
+}
+
+.portlet-title{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.portlet-body{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.portlet-title{
+    background-color: #344e71 !important;
+}
+
+.btn-primary{
+    background-color: #344e71 !important;
+}
+
+.btn-primary:hover{
+    cursor: pointer;
+    background-color: #3d454f !important;
+}
+
+.portlet.box.blue-soft{
+    border:  1px solid #60758f !important;
+}
+
+
+.valid-range {
+    color: #6e6e6e;
+}
+
+.logClass p{
+    font-size : 16px;
+    font-weight:normal;
+}
+
+.modal-content{
+    border-radius: 10px;
+}
+
+.modal-header{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.modal-body{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.bg-primary{
+    background-color: #344e71 !important;
+}
+
+.helpTable>tbody>tr>td{
+    padding: 0 5px 0 5px;
+}
+
+/*formvalidation验证位置*/
+.help-block{
+    position: absolute;
+}

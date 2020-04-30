@@ -1,0 +1,417 @@
+@()(implicit session: Session)
+@modules.main("管理项目", "") {
+
+    <style>
+            .update {
+                border-radius: 15px 15px 15px 15px;
+                background-color: transparent;
+                color: gray;
+                border: 0px;
+            }
+
+            .update:hover {
+                color: gray;
+                background-color: lightgray;
+            }
+
+            .delete {
+                border-radius: 15px 15px 15px 15px;
+                background-color: transparent;
+                color: gray;
+                border: 0px;
+            }
+
+            .delete:hover {
+                color: white;
+                background-color: red;
+            }
+
+    </style>
+
+
+    <div class="page-bar">
+        <ul class="page-breadcrumb">
+            <li>
+                <i class="fa fa-database"></i>
+                <a href="#">项目总览</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="portlet blue-madison box">
+                <div class="portlet-title">
+                    <div class="caption">
+                        项目
+                    </div>
+                </div>
+
+
+                <div class="portlet-body" id="t">
+                    <div class="table-responsive">
+
+
+                        <div id="toolbar">
+                            <button type="button" class="btn btn-primary" id="deleteButton" onclick="insertGroup()">
+                                <i class="fa fa-plus"></i>&nbsp;新建项目
+                            </button>
+                        </div>
+
+
+                        <table class="display table table-bordered table-hover table-striped" id="table" data-pagination="true" data-search="true"
+                        data-search-align="left" data-page-list="[10, 25, 50, 100]" data-multiple-search="true">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="addModal" class="modal fade modal-margin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 600px;">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">
+                        <i class="fa fa-plus"></i>
+                        <span id="lblAddTitle" style="font-weight: bold">新建项目：</span>
+                    </h4>
+                </div>
+                <form id="form" data-toggle="validator">
+                    <div class="modal-body">
+                        <div class="row-fluid">
+
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            项目名称: </label>
+                                        <input class="form-control" name="projectname" id="projectname" >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="groupContent">
+                                <div class='row'>
+                                    <div class="col-sm-10">
+                                        <div class='form-group'>
+                                            <label class='control-label'>项目描述：</label>
+                                            <textarea class='form-control' style="border-radius: 4px" rows="6"
+                                            name='description' id='description' required='required'></textarea>
+                                        </div>
+                                    </div>
+                                </div></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-info">
+                        <button type="submit" class="btn blue" onclick="addProject()">确定</button>
+                        <button type="button" class="btn green" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="updateProname" class="modal fade modal-margin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 600px;">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">
+                        <i class="fa fa-pencil"></i>
+                        <span id="lblAddTitle" style="font-weight: bold">编辑项目信息：</span>
+                    </h4>
+                </div>
+                <form id="updateproForm" data-toggle="validator">
+                    <div class="modal-body">
+                        <div class="row-fluid">
+
+                            <div class="row">
+
+                                <div class="col-sm-8" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            项目ID：
+                                        </label>
+                                        <input class="form-control indent" id="proId" name="proId" readonly="readonly" >
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            项目名：
+                                        </label>
+                                        <input class="form-control" id="proname" name="projectname">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            项目描述：
+                                        </label>
+                                        <textarea class='form-control' style="border-radius: 4px" rows="4"
+                                        name='description' id='description1'></textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-info">
+                        <button type="button" class="btn blue" onclick="updateP()">确定</button>
+                        <button type="button" class="btn green" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteShow" class="modal fade modal-margin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="margin-top: 200px;">
+        <div class="modal-dialog" style="width: 400px;">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h4 class="modal-title" align="center" id="title1">
+                        <span style="font-weight: bold">请确认是否删除项目"
+                            <b id="dsample">
+
+                            </b>"?
+                        </span>
+                    </h4>
+                    <h4 class="modal-title" align="center" id="title2" style="display: none;">
+                        <span style="font-weight: bold;">删除中...</span>
+                    </h4>
+                    <h4 class="modal-title" align="center" id="title3" style="display: none;">
+                        <span style="font-weight: bold;">删除成功</span>
+                    </h4>
+                </div>
+                <div class="row-fluid" align="center" >
+                    <div id="warn1">
+                        <img src="/assets/images/warning.png">
+                    </div>
+                    <div id="warn2" style="display: none;">
+                        <img src="/assets/images/timg2.gif" style="height: 109px;">
+                    </div>
+                    <div id="warn3" style="display: none;">
+                        <img src="/assets/images/success.png">
+                    </div>
+                </div>
+                <div class="modal-footer bg-info">
+                    <div align="center">
+                        <button type="button" class="btn red" onclick="deleteSample(this)" style="width: 100px;" id="btn1">
+                            确定</button>
+                        <button type="button" class="btn green" data-dismiss="modal" style="width: 100px;" id="btn2">
+                            取消</button>
+                        <button type="button" class="btn green" onclick="updateDelete()" style="width: 100px;
+                            display: none;" id="btn3">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+            $(function () {
+                $("#table").bootstrapTable({
+                    columns: [{
+                        field: "in",
+                        title: "进入项目",
+                        align: "center",
+                        formatter: function (value, row) {
+                            return "<a class='update' href='/meta/sample/" + row.name + "/uploadPage' title='进入项目'><i class='fa fa-chevron-circle-right'></i></a>";
+                        }
+
+                    }, {
+                        field: "name",
+                        title: "项目名",
+                        sortable: "true",
+                        align: "center"
+                    }, {
+                        field: "sample",
+                        title: "样本量",
+                        align: "center"
+                    }, {
+                        field: "createdate",
+                        title: "创建时间",
+                        sortable: "true",
+                        align: "center"
+                    }, {
+                        field: "description",
+                        title: "项目描述",
+                        align: "left"
+                    }, {
+                        field: "operation",
+                        title: "删除",
+                        align: "center",
+                        formatter: function (value, row) {
+                            return "                                        <button class=\"update\" onclick=\"updateProname(this)\" title=\"编辑项目信息\" value=\"" + row.name + "\" id=\"" + row.id + "\">\n" +
+                                    "                                            <i class=\"fa fa-pencil\"></i>\n" +
+                                    "<div id='des" + row.id +"' style='display: none'>" + row.description +"</div>"+
+                                    "                                        </button>"
+                                    + "<button class='delete' onclick='openDelete(this)' value='" + row.name + "' id='" + row.id + "' title='删除项目'><i class='fa fa-trash'></i></button>" ;
+                        }
+                    }]
+                });
+                updateTable();
+                formValidation();
+            })
+
+
+            function updateTable() {
+                $.ajax({
+                    url: "@routes.ProjectController.getAllPorject()",
+                    type: "post",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#table").bootstrapTable('load', data);
+                    }
+                });
+            }
+
+            function insertGroup() {
+                $("#addModal").modal("show")
+            }
+
+            function updateProname(obj) {
+                var v = obj.value;
+                var id = obj.id;
+                var n = $("#des" + id).text();
+                $("#proname").empty();
+                $("#proname").val(v);
+                $("#proId").val(id);
+                $("#description1").empty();
+                $("#description1").val(n);
+                $("#updateProname").modal("show")
+            }
+
+
+            function formValidation() {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'glyphicon glyphicon-ok',
+                        invalid: 'glyphicon glyphicon-remove',
+                        validating: 'glyphicon glyphicon-refresh'
+                    },
+                    fields: {
+                        projectname: {
+                            validators: {
+                                notEmpty: {
+                                    message: '项目名不能为空!'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '/meta/project/checkProjectname',
+                                    message: '项目名重复，请重新输入！'
+                                },
+                                regexp: {
+                                    regexp: '^[A-Za-z0-9"_"]{1,12}$',
+                                    message: '12个以内字符，可使用字母、数字、下划线！'
+                                }
+                            }
+                        }
+                    }
+                });
+                $('#updateproForm').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'glyphicon glyphicon-ok',
+                        invalid: 'glyphicon glyphicon-remove',
+                        validating: 'glyphicon glyphicon-refresh'
+                    },
+                    fields: {
+                        projectname: {
+                            validators: {
+                                notEmpty: {
+                                    message: '项目名不能为空!'
+                                },
+                                regexp: {
+                                    regexp: '^[A-Za-z0-9"_"]{1,12}$',
+                                    message: '12个以内字符，可使用字母、数字、下划线！'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '/meta/project/checkProjectname',
+                                    message: '项目名重复，请重新输入！'
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+            function addProject() {
+                var form = $("#form")
+                var fv = form.data("formValidation")
+                fv.validate();
+                if (fv.isValid()) {
+                    $.ajax({
+                        url: "@routes.ProjectController.addProject()",
+                        type: "get",
+                        data: $("#form").serialize(),
+                        success: function (data) {
+                            if (data.valid == "true") {
+                                $("#addModal").modal("hide")
+                                cpm("home", "新建成功");
+                            }
+                        }
+                    });
+                }
+
+            }
+
+            function openDelete(obj) {
+                var i = obj.id;
+                var name = obj.value;
+                $("#dsample").empty();
+                $("#dsample").append(name);
+                $("#btn1").val(i);
+                deleteBefore();
+                $("#deleteShow").modal("show");
+
+            }
+
+            function deleteSample(obj) {
+                var id = obj.value;
+                deleting();
+                $.ajax({
+                    url: "/meta/project/deleteProject?id=" + id,
+                    type: "delete",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.valid == "true") {
+                            deleteAfter();
+                        }
+                    }
+                });
+            }
+
+            function updateDelete() {
+                $("#deleteShow").modal("hide");
+                updateTable();
+            }
+
+            function updateP() {
+                $.ajax({
+                    url: "@routes.ProjectController.updateProinfo()",
+                    type: "post",
+                    dataType: "json",
+                    data: $("#updateproForm").serialize(),
+                    success: function (data) {
+                        if (data.valid == "true") {
+                            $("#updateProname").modal("hide")
+                            cpm("home", "修改成功");
+                        }
+                    }
+                })
+            }
+
+    </script>
+
+
+}

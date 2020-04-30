@@ -1,0 +1,98 @@
+@(proname: String)
+
+<div class="page-sidebar-wrapper">
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu " data-auto-scroll="true" data-slide-speed="200" id="projects">
+
+            <li class="sidebar-toggler-wrapper" style="height: 52px;
+                background-color: #2B2A28;">
+                    <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+                <div class="sidebar-toggler">
+                </div>
+
+
+                <h4 class="platform-title" >宏基因组平台</h4>
+
+
+                    <!-- END SIDEBAR TOGGLER BUTTON -->
+            </li>
+
+
+            <li class="left-height" id="projectPage">
+                <a href='@routes.ProjectController.projectPage()' class="left-a-open">
+
+                    <i class='fa fa-database'></i>
+                    <span class="title">项目总览</span>
+                    <span class='selected'></span>
+
+                </a>
+            </li>
+
+
+            @if(proname != "") {
+
+                <li  style="background-color: #2B2A28;
+                    height: 40px" class="left-project">
+                    <a>
+                        <i class="fa fa-arrows-alt"></i>
+                        <span class="title">@proname</span>
+                    </a>
+                </li>
+
+
+                <li class="left-height left-project" id="uploadPage">
+                    <a href='@routes.SampleController.uploadPage(proname)' class="left-a-open">
+                        <i class='fa fa-cloud-upload'></i>
+                        <span class="title">样品导入</span>
+                        <span class='selected'></span>
+
+                    </a>
+                </li>
+
+                <li class="left-height left-project" id="samplePage">
+                    <a href='@routes.SampleController.samplePage(proname)' class="left-a-open">
+                        <i class='fa fa-cloud'></i>
+                        <span class="title">样品管理</span>
+                        <span class='selected'></span>
+                    </a>
+                </li>
+
+                <li class="left-height left-project" id="metaPage">
+                    <a href='@routes.MetaController.metaPage(proname)' class="left-a-open">
+                        <i class='fa fa-columns'></i>
+                        <span class="title">宏基因组分析</span>
+                        <span class='selected'></span>
+                    </a>
+                </li>
+
+                <li class="left-height left-project" id="resultPage">
+                    <a href='@routes.MetaController.resultPage(proname)' class="left-a-open">
+                        <i class='fa fa-th'></i>
+                        <span class="title">结果管理</span>
+                        <span class='selected'></span>
+                    </a>
+                </li>
+           }
+
+
+        </ul>
+    </div>
+</div>
+
+<script>
+        $(function () {
+            var href = window.location.href;
+            var array = href.split("/");
+            var code = array[array.length - 1];
+            if (code.indexOf("?") != -1) {
+                var id = code.split("?")[0];
+                $("#" + id).addClass('active')
+            } else {
+                $("#" + code).addClass('active')
+            }
+        })
+
+</script>
+
+
+

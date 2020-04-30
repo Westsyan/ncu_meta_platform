@@ -1,0 +1,294 @@
+@(proname: String)(implicit session: Session)
+@modules.main("分析结果", proname) {
+    <script src="@routes.Assets.versioned("webscoket/webscoket.js")" type="text/javascript"></script>
+
+    <style>
+            .update {
+                border-radius: 15px 15px 15px 15px;
+                background-color: transparent;
+                color: gray;
+                border: 0px;
+            }
+
+            .update:hover {
+                color: gray;
+                background-color: lightgray;
+            }
+
+            .fastq {
+                background-color: transparent;
+                color: gray;
+                border: 0px;
+            }
+
+            .fastq:hover {
+                color: black;
+                text-decoration: underline;
+            }
+
+            .delete {
+                border-radius: 15px 15px 15px 15px;
+                background-color: transparent;
+                color: gray;
+                border: 0px;
+            }
+
+            .delete:hover {
+                color: white;
+                background-color: red;
+            }
+
+            .state {
+                display: none;
+            }
+
+            .layui-layer-title {
+                background-color: #428BCA;
+                height: 55px;
+            }
+
+        td{
+            white-space:nowrap;
+        }
+    </style>
+
+    <div class="page-bar">
+        <ul class="page-breadcrumb">
+            <li>
+                <a href="#">
+                    <i class='fa fa-th'></i>
+                    分析结果管理
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="portlet blue-madison box">
+
+                <div class="portlet-title">
+                    <div class="caption">
+                        分析结果管理
+                    </div>
+                </div>
+
+                <div class="portlet-body" id="t">
+                    <div class="table-responsive" >
+                        <table class="display table table-bordered table-hover table-striped" id="table" data-pagination="true" data-search="true"
+                        data-search-align="left" data-page-list="[10, 25, 50, 100]" data-multiple-search="true">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="update" class="modal fade modal-margin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 600px;">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">
+                        <span id="lblAddTitle" style="font-weight: bold">修改项目名：</span>
+                    </h4>
+                </div>
+                <form id="updateForm" data-toggle="validator">
+                    <div class="modal-body">
+                        <div class="row-fluid">
+
+                            <div class="row">
+
+                                <div class="col-sm-8" style="display: none;" >
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            ID：
+                                        </label>
+                                        <input class="form-control indent" id="metaId" name="metaId" readonly="readonly" >
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            新的任务名: </label>
+                                        <input class="form-control" name="meta" id="meta" >
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-info">
+                        <button type="submit" class="btn blue" onclick="sureUpdate()">确定</button>
+                        <button type="button" class="btn green" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+            $(function () {
+                formValidation();
+                createTable();
+                updateTable();
+                webScoket("@proname");
+            })
+
+            function createTable() {
+                $("#table").bootstrapTable({
+                    columns: [{
+                        field: "name",
+                        title: " 任务名",
+                        sortable: "true",
+                    }, {
+                        field: "state",
+                        title: "运行状态",
+                        sortable: "true",
+                        formatter: function (value, row) {
+                            if (row.state === 0) {
+                                return "正在运行 <img src='/assets/images/timg.gif'  style='width: 20px; height: 20px;'><input class='state' value='" + row.state + "'>";
+                            } else if (row.state === 1) {
+                                return "<span class='success-span'>成功</span><input class='state' value='" + row.state + "'>";
+                            } else {
+                                return "<span class='faild-span'>失败</span><input class='state' value='" + row.state + "'>";
+                            }
+                        }
+                    }, {
+                        field: "result",
+                        title: "分析结果",
+                        formatter: function (value, row) {
+                            if(row.state == 1){
+                                return "<a class=\"fastq\" href=\"/diversity/sample/download?id=${x.id}&code=1\" title=\"原始数据\"><b>meta</b><b>_results.tar.gz</b></a>";
+                            }else {
+                                return "";
+                            }
+                        }
+                    }, {
+                        field: "date",
+                        title: "创建时间",
+                        sortable: "true",
+                    }, {
+                        field: "operation",
+                        title: "操作",
+                        formatter: function (value, row) {
+                            let log = "<button class=\"update\" onclick=\"OpenLog('" + row.id + "')\" ><i class=\"fa fa-file-text\"></i> 查看日志</button>";
+                            let de = "<button class='delete' onclick=\"deleteShow('" + row.id + "','" + row.name + "')\"><i class='fa fa-trash'></i> 删除任务</button>";
+                            let rename = "<button class='update' onclick=\"openRename('" + row.id + "','" + row.name + "')\"><i class='fa fa-edit'></i> 修改样品名</button>";
+                            if (row.state === 2) {
+                                return log + de;
+                            }else if (row.state === 1){
+                                return rename + log + de;
+                            } else {
+                                return de;
+                            }
+                        }
+                    }]
+                });
+            }
+
+            function openRename(id,name) {
+                $("#meta").empty();
+                $("#meta").val(name);
+                $("#metaId").val(id);
+                $("#update").modal("show")
+            }
+
+            function OpenLog(id) {
+                $.post("/meta/meta/openLog?id=" + id, function (data) {
+                    logShow(data);
+                })
+            }
+
+            function formValidation() {
+                $('#updateForm').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'glyphicon glyphicon-ok',
+                        invalid: 'glyphicon glyphicon-remove',
+                        validating: 'glyphicon glyphicon-refresh'
+                    },
+                    fields: {
+                        meta: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空!'
+                                },
+                                regexp: {
+                                    regexp: '^[A-Za-z0-9"_"]{1,25}$',
+                                    message: '25个以内字符，可使用字母、数字、下划线！'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '@routes.MetaController.checkMetaName(proname)',
+                                    message: '样品名重复，请重新输入'
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+            function sureUpdate() {
+                const form = $("#updateForm");
+                const fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    const index = layer.load(1, {
+                        shade: [0.1, '#fff']
+                    });
+                    $.ajax({
+                        url: "@routes.MetaController.updateMetaName()",
+                        type: "post",
+                        dataType: "json",
+                        data: form.serialize(),
+                        success: function (data) {
+                            if (data.valid == "true") {
+                                layer.close(index);
+                                $("#update").modal("hide")
+                                cpm("table", "修改成功");
+                            }else{
+                                deleteFailed(data.message)
+                            }
+                        }
+                    })
+                }
+            }
+
+            function deleteChoose(id) {
+                deleting();
+                $.ajax({
+                    url: "/meta/meta/deleteMeta?id=" + id,
+                    type: "delete",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == "success") {
+                            deleteAfter();
+                        }
+                    }
+                });
+            }
+
+            function updateDelete() {
+                $("#deleteShow").modal("hide");
+                updateTable();
+            }
+
+            function updateTable() {
+                $.ajax({
+                    url: "@routes.MetaController.getAllMeta(proname)",
+                    type: "post",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#table").bootstrapTable('load', data);
+                    }
+                });
+            }
+
+    </script>
+
+
+}

@@ -112,7 +112,7 @@
                                     <div class="form-group">
                                         <label class="control-label">
                                             新的任务名: </label>
-                                        <input class="form-control" name="meta" id="meta" >
+                                        <input class="form-control" name="name" id="meta" >
                                     </div>
                                 </div>
                             </div>
@@ -162,7 +162,7 @@
                         title: "分析结果",
                         formatter: function (value, row) {
                             if(row.state == 1){
-                                return "<a class=\"fastq\" href=\"/diversity/sample/download?id=${x.id}&code=1\" title=\"原始数据\"><b>meta</b><b>_results.tar.gz</b></a>";
+                                return "<a class='fastq' href='/meta/utils/downloadMeta?id=" + row.id + "' title='结果数据'><b>meta_results.tar.gz</b></a>";
                             }else {
                                 return "";
                             }
@@ -176,12 +176,11 @@
                         title: "操作",
                         formatter: function (value, row) {
                             let log = "<button class=\"update\" onclick=\"OpenLog('" + row.id + "')\" ><i class=\"fa fa-file-text\"></i> 查看日志</button>";
-                            let de = "<button class='delete' onclick=\"deleteShow('" + row.id + "','" + row.name + "')\"><i class='fa fa-trash'></i> 删除任务</button>";
-                            let rename = "<button class='update' onclick=\"openRename('" + row.id + "','" + row.name + "')\"><i class='fa fa-edit'></i> 修改样品名</button>";
+                            let de = "<button class='delete' onclick=\"deleteShow('" + row.id + "','" + row.name + "')\"><i class='fa fa-trash'></i> 删除结果</button>";;
                             if (row.state === 2) {
                                 return log + de;
                             }else if (row.state === 1){
-                                return rename + log + de;
+                                return  log + de;
                             } else {
                                 return de;
                             }
@@ -212,7 +211,7 @@
                         validating: 'glyphicon glyphicon-refresh'
                     },
                     fields: {
-                        meta: {
+                        name: {
                             validators: {
                                 notEmpty: {
                                     message: '不能为空!'

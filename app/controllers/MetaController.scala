@@ -46,14 +46,22 @@ class MetaController @Inject()(cc: ControllerComponents,
         val raw = samples.map { x =>
           val samplePath = s"${Utils.path}/data/$userid/$proid/data/${x.id}"
           val suffix = x.file.split("\t")
-          s"${x.sample}\t${samplePath}/${x.sample}${suffix.head}\t${samplePath}/${x.sample}${suffix.last}\n"
+          s"${x.sample}\t${samplePath}/${x.sample}${suffix.head}\t${samplePath}/${x.sample}${suffix.last}"
         }.toBuffer
         val rawPath = s"$path/raw.fq.lst"
         FileUtils.writeLines(rawPath.toFile, raw.asJava)
 
         val exec = new ExecCommand
-        val command = s"perl /mnt/sdb/metagenome/bin/Meta_genome_binning.pl $rawPath"
-        exec.exect(command, path)
+        val cmdChmod = s"chmod 777 $path"
+        val command =
+          s"""
+            |cd $path
+            | perl /mnt/sdb/metagenome/bin/Meta_genome_binning.pl $rawPath
+            |""".stripMargin
+        FileUtils.writeStringToFile(s"$path/getMetaGenome.sh".toFile,command)
+        val runCommand = s"su - ncu -s /bin/bash $path/getMetaGenome.sh"
+        val dos2unixGetMetaGenome = s"dos2unix $path/getMetaGenome.sh"
+        exec.exect(Array(cmdChmod,dos2unixGetMetaGenome,runCommand), path)
         if (exec.isSuccess) {
           val shell = s"$path/shell"
           val sh = s"$shell".toFile.listFiles().map(_.getName)
@@ -68,8 +76,11 @@ class MetaController @Inject()(cc: ControllerComponents,
           val S02_2 = s"sh $shell/S02.2.stat.sh &"
           val S03 = sh.filter(_.startsWith("S03")).map(x => s"sh $shell/$x &").mkString("\n")
           val S04 = s"sh $shell/S04.final.sh &"
+          val pidFile = s"$path/shell/pid.txt"
           val com =
             s"""
+              |cd $shell
+              |echo $$$$ > $pidFile
                |$S01_1
                |wait
                |$S01_2
@@ -79,12 +90,17 @@ class MetaController @Inject()(cc: ControllerComponents,
                |$S03
                |wait
                |$S04
+               |wait
+               |cd $path/result
+                |rm -rf ./css ./js ./res ./meta_genome_binning.html ./binning
+                |cd $path
+               |tar -czvf $path/meta_results.tar.gz ./result
                |""".stripMargin
 
           val run = s"$shell/run.sh"
           FileUtils.writeStringToFile(run.toFile, com)
           val dos2unix = s"dos2unix $run"
-          val com2 = s"sh $run"
+          val com2 = s"su - ncu -s /bin/bash $run"
           val exec2 = new ExecCommand
           exec2.exect(Array(dos2unix, com2), shell)
           if (exec2.isSuccess) {
@@ -104,6 +120,10 @@ class MetaController @Inject()(cc: ControllerComponents,
           log = e.getMessage
       } finally {
         metaDao.updateState(id, state).toAwait
+        s"$path/shell/pid.txt".delete
+        s"$path".toFile.listFiles().filter(x=> x.getName != "log.txt" && x.getName != "meta_results.tar.gz").foreach{xx=>
+          xx.getAbsolutePath.delete
+        }
         (path + "/log.txt").writeStringToFile(log)
       }
     }
@@ -125,6 +145,13 @@ class MetaController @Inject()(cc: ControllerComponents,
     metaDao.getById(id).flatMap { x =>
       metaDao.deleteById(id).map { y =>
         val path = s"${Utils.path}/data/${x.userid}/${x.proid}/meta/$id"
+        val pidFile = s"$path/shell/pid.txt"
+        if(pidFile.toFile.exists()){
+          val exec = new ExecCommand
+          val pid = pidFile.toFile.readLines.head.trim
+          val killPid = s"sh ${Utils.toolPath}/killPid.sh $pid"
+          exec.exec(killPid)
+        }
         path.delete
         Ok(Json.toJson("success"))
       }
@@ -140,7 +167,7 @@ class MetaController @Inject()(cc: ControllerComponents,
 
   def checkMetaName(proname: String) = Action { implicit request =>
     val data = FormTool.metaNameForm.bindFromRequest.get
-    val name = data.meta
+    val name = data.name
     val proid = projectDao.getIdByProjectname(Utils.getUserid, proname).toAwait
     val valid = metaDao.checkName(proid, name).toAwait
     Ok(Json.obj("valid" -> (!valid).toString))
@@ -149,7 +176,7 @@ class MetaController @Inject()(cc: ControllerComponents,
   def updateMetaName = Action { implicit request =>
     try {
       val data = FormTool.updateMetaNameForm.bindFromRequest.get
-      metaDao.updateName(data.metaId.toInt, data.meta).toAwait
+      metaDao.updateName(data.metaId.toInt, data.name).toAwait
       Ok(Json.obj("valid" -> "true"))
     }catch{
       case e:Exception=>

@@ -33,6 +33,10 @@ DELETE        /meta/meta/deleteMeta                   controllers.MetaController
 POST          /meta/meta/openLog                      controllers.MetaController.openLog(id:Int)
 POST          /meta/meta/updateMetaName               controllers.MetaController.updateMetaName
 
+GET          /meta/utils/downloadData               controllers.UtilsController.downloadData(id:Int,code:Int)
+GET          /meta/utils/downloadMeta               controllers.UtilsController.downloadMeta(id:Int)
+
+
 GET           /ws                                     controllers.SocketController.socket(proname:String)
 
 

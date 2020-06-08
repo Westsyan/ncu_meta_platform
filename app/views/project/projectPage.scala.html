@@ -99,7 +99,7 @@
                                         <div class='form-group'>
                                             <label class='control-label'>项目描述：</label>
                                             <textarea class='form-control' style="border-radius: 4px" rows="6"
-                                            name='description' id='description' required='required'></textarea>
+                                            name='description' id='description'></textarea>
                                         </div>
                                     </div>
                                 </div></div>
@@ -163,7 +163,7 @@
                         </div>
                     </div>
                     <div class="modal-footer bg-info">
-                        <button type="button" class="btn blue" onclick="updateP()">确定</button>
+                        <button type="submit" class="btn blue" onclick="updateP()">确定</button>
                         <button type="button" class="btn green" data-dismiss="modal">取消</button>
                     </div>
                 </form>
@@ -246,7 +246,7 @@
                         align: "left"
                     }, {
                         field: "operation",
-                        title: "删除",
+                        title: "操作",
                         align: "center",
                         formatter: function (value, row) {
                             return "                                        <button class=\"update\" onclick=\"updateProname(this)\" title=\"编辑项目信息\" value=\"" + row.name + "\" id=\"" + row.id + "\">\n" +

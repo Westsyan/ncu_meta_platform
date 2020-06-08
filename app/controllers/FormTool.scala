@@ -100,22 +100,20 @@ object FormTool {
     )(metaData.apply)(metaData.unapply)
   )
 
-  case class metaNameData(meta:String)
+  case class metaNameData(name:String)
 
   val metaNameForm = Form(
     mapping(
-      "meta" -> text
+      "name" -> text
     )(metaNameData.apply)(metaNameData.unapply)
   )
 
-
-
-  case class updateMetaNameData(metaId: String,meta:String)
+  case class updateMetaNameData(metaId: String,name:String)
 
   val updateMetaNameForm = Form(
     mapping(
       "metaId" -> text,
-      "meta" -> text
+      "name" -> text
     )(updateMetaNameData.apply)(updateMetaNameData.unapply)
   )
 

@@ -92,7 +92,9 @@
                 }
             });
             $(function () {
-                getTaskName("metaForm")
+                formValidation();
+
+                getTaskName("#metaForm")
 
                 $.post("/meta/sample/getAllSampleName?proname=@proname", function (data) {
                     $("#sample").select2(
@@ -102,7 +104,6 @@
                             }
                     );
                 })
-                formValidation();
             });
 
             function formValidation() {

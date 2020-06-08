@@ -157,8 +157,8 @@
                         field: "result",
                         title: "原始数据",
                         formatter: function (value, row) {
-                            return "<a class=\"fastq\" href=\"/diversity/sample/download?id=${x.id}&code=1\" title=\"原始数据\"><b>" + row.sample + "</b><b>_R1.fq</b></a>" +
-                                    " <a class=\"fastq\" href=\"/diversity/sample/download?id=${x.id}&code=1\" title=\"原始数据\"><b>" + row.sample + "</b><b>_R2.fq</b></a>"
+                            return "<a class='fastq' href='/meta/utils/downloadData?id="+ row.id +"&code=0' title='原始数据'><b>" + row.sample + "</b><b>_R1.fq</b></a>" +
+                                    " <a class='fastq' href='/meta/utils/downloadData?id="+ row.id +"&code=1' title='原始数据'><b>" + row.sample + "</b><b>_R2.fq</b></a>"
                         }
                     }, {
                         field: "date",
@@ -170,7 +170,7 @@
 
                         formatter: function (value, row) {
                             let log = "<button class=\"update\" onclick=\"OpenLog('" + row.id + "')\" ><i class=\"fa fa-file-text\"></i> 查看日志</button>";
-                            let de = "<button class='delete' onclick=\"deleteShow('" + row.id + "','" + row.sample + "')\"><i class='fa fa-trash'></i> 删除任务</button>";
+                            let de = "<button class='delete' onclick=\"deleteShow('" + row.id + "','" + row.sample + "')\"><i class='fa fa-trash'></i> 删除样品</button>";
                             let rename = "<button class='update' onclick=\"openRename('" + row.id + "','" + row.sample + "')\"><i class='fa fa-edit'></i> 修改样品名</button>";
                             if (row.state === 2) {
                                 return log + de;
